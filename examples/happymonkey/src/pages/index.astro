@@ -128,18 +128,6 @@ const openSourceTools = [
         pointer-events: none;
         overflow: hidden;
       }
-      .nav-scene :global(.spatial-scene) {
-        min-height: 0 !important;
-        height: 100% !important;
-        background: transparent !important;
-        pointer-events: none !important;
-      }
-      .nav-scene :global(.spatial-scene__canvas) {
-        height: 100% !important;
-      }
-      .nav-scene :global(.spatial-scene__fallback) {
-        display: none !important;
-      }
       .site-nav .wordmark { font-weight: 700; font-size: 1.05rem; text-decoration: none; }
       .site-nav .wordmark span { color: var(--accent-warm); }
       .site-nav ul { list-style: none; display: flex; gap: 1.5rem; margin: 0; padding: 0; }
@@ -189,7 +177,6 @@ const openSourceTools = [
         background: radial-gradient(220px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(140, 123, 255, 0.28), transparent 65%);
       }
       .card { border: 1px solid var(--line); background: var(--panel); border-radius: 1rem; padding: 1.5rem; }
-      .card:hover { border-color: var(--accent); }
       .card h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
       .card p { font-size: 0.92rem; margin: 0; }
       .card a.card-link { text-decoration: none; }
@@ -199,7 +186,7 @@ const openSourceTools = [
 
       .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 2rem; }
       .tile { border: 1px solid var(--line); border-radius: 0.9rem; padding: 1.1rem 1.3rem; font-weight: 600; font-size: 0.95rem; background: var(--panel); }
-      .tile:hover { border-color: var(--accent); }
+      .card:hover, .tile:hover { border-color: var(--accent); }
 
       /* consultancy */
       .consultancy { background: linear-gradient(180deg, rgba(140,123,255,0.08), transparent); border-radius: 1.5rem; }
@@ -339,11 +326,12 @@ const openSourceTools = [
         return {
           object: mesh,
           onFrame: ({ time, pointer, reducedMotion }) => {
+            if (reducedMotion) return
             for (let i = 0; i < posAttr.count; i += 1) {
               const u = basePositions[i * 3] / (width / 2)
-              const distance = reducedMotion ? 1 : Math.abs(u - pointer.x * pointerReach)
-              const bulge = reducedMotion ? 0 : Math.exp(-distance * distance * 3) * 0.45
-              const wave = reducedMotion ? 0 : Math.sin(time * 0.0015 + u * 3.2) * 0.05
+              const distance = Math.abs(u - pointer.x * pointerReach)
+              const bulge = Math.exp(-distance * distance * 3) * 0.45
+              const wave = Math.sin(time * 0.0015 + u * 3.2) * 0.05
               posAttr.setZ(i, bulge + wave)
             }
             posAttr.needsUpdate = true
@@ -354,7 +342,7 @@ const openSourceTools = [
     </script>
     <header class="site-nav">
       <div class="nav-scene" aria-hidden="true">
-        <Scene id="nav" nodes={navNodes} label="" fallback="" quality="low" maxDpr={1} />
+        <Scene id="nav" nodes={navNodes} label="" fallback="" quality="low" maxDpr={1} fill />
       </div>
       <a class="wordmark nav-content" href="#home">Happy<span>Monkey</span>.AI</a>
       <div class="nav-links nav-content">
@@ -392,6 +380,7 @@ const openSourceTools = [
           label="An orbiting swarm of connected agent nodes around a central core, representing HappyMonkey's agent orchestration"
           fallback="Loading spatial preview"
           class="scene-shell"
+          pointerParallax
         >
           <Camera id="hero-camera-child" position={[0, 1.4, 5.5]} fov={42} />
           <Light id="hero-light-ambient" type="ambient" intensity={0.7} />
@@ -489,7 +478,7 @@ const openSourceTools = [
         <p class="eyebrow">Contact</p>
         <h2>Tell us about the job that hurts.</h2>
         <p class="contact-line">+44 7345 637409 &middot; London, UK</p>
-        <form class="contact-form" onsubmit="event.preventDefault()">
+        <form class="contact-form">
           <div>
             <label for="name">Name</label>
             <input id="name" name="name" type="text" autocomplete="name" required />
@@ -525,6 +514,8 @@ const openSourceTools = [
     </footer>
 
     <script>
+      document.querySelector('.contact-form')?.addEventListener('submit', (event) => event.preventDefault())
+
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
 

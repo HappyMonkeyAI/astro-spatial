@@ -7,6 +7,13 @@ export interface SpatialRendererOptions {
   readonly reducedMotion?: boolean
   readonly quality?: SpatialQuality
   readonly adaptiveQuality?: boolean
+  /**
+   * Opt-in subtle camera parallax driven by cursor position. Off by default because
+   * a moving camera fights precise pointer-driven interactions elsewhere in the
+   * scene (for example three.js TransformControls in the scene editor, which reads
+   * the same camera to compute drag deltas) — only enable it for decorative scenes.
+   */
+  readonly pointerParallax?: boolean
 }
 
 export interface SpatialPointerState {
@@ -42,9 +49,10 @@ const proceduralFactories = new Map<string, ProceduralModelFactory>()
  * A page can register procedural factories from its own script, mounted alongside
  * (rather than strictly before) any Scene that consumes them. A brief bounded
  * retry absorbs that ordering race instead of requiring every consumer page to
- * get script placement exactly right.
+ * get script placement exactly right. Exported so this retry behavior itself is
+ * unit-testable without a DOM/WebGL context.
  */
-async function waitForProceduralFactory(
+export async function waitForProceduralFactory(
   src: string,
   attempts = 15,
   delayMs = 20,
@@ -52,7 +60,7 @@ async function waitForProceduralFactory(
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const factory = proceduralFactories.get(src)
     if (factory) return factory
-    await new Promise((resolve) => window.setTimeout(resolve, delayMs))
+    await new Promise((resolve) => setTimeout(resolve, delayMs))
   }
   return proceduralFactories.get(src)
 }
@@ -277,6 +285,9 @@ export function createSpatialRenderer(
           const factory = await waitForProceduralFactory(modelNode.src)
           if (!factory) throw new Error(`No procedural factory registered for ${modelNode.src}`)
           const result = factory()
+          if (result == null) {
+            throw new Error(`Procedural factory for "${modelNode.src}" returned nothing (expected an Object3D or { object, onFrame })`)
+          }
           if (isProceduralModelInstance(result)) {
             interactiveObject = result.object
             interactiveOnFrame = result.onFrame
@@ -357,7 +368,7 @@ export function createSpatialRenderer(
       interactiveObject.rotation.y = time * 0.00035 + storyProgress * Math.PI * 0.35
     }
 
-    if (!reducedMotion) {
+    if (options.pointerParallax && !reducedMotion) {
       camera.position.set(
         cameraBase.position.x + pointerSmoothed.x * 0.35,
         cameraBase.position.y - pointerSmoothed.y * 0.22,

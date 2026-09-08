@@ -8,6 +8,7 @@ export interface MountSpatialSceneOptions {
   readonly storyId?: string
   readonly debug?: boolean
   readonly adaptiveQuality?: boolean
+  readonly pointerParallax?: boolean
 }
 
 export async function mountSpatialScene(
