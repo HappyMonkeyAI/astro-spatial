@@ -9,9 +9,53 @@ export interface SpatialRendererOptions {
   readonly adaptiveQuality?: boolean
 }
 
-export type ProceduralModelFactory = () => THREE.Object3D
+export interface SpatialPointerState {
+  /** Normalized device coordinate, smoothed. -1..1 across the canvas, positive x is right, positive y is up. */
+  readonly x: number
+  readonly y: number
+  readonly active: boolean
+}
+
+export interface SpatialFrameContext {
+  readonly time: number
+  readonly deltaMs: number
+  readonly pointer: SpatialPointerState
+  readonly reducedMotion: boolean
+  readonly progress: number
+}
+
+export interface ProceduralModelInstance {
+  readonly object: THREE.Object3D
+  /** Called once per rendered frame so a procedural model can react to the cursor without owning its own render loop. */
+  readonly onFrame?: (context: SpatialFrameContext) => void
+}
+
+export type ProceduralModelFactory = () => THREE.Object3D | ProceduralModelInstance
+
+function isProceduralModelInstance(value: THREE.Object3D | ProceduralModelInstance): value is ProceduralModelInstance {
+  return !(value instanceof THREE.Object3D)
+}
 
 const proceduralFactories = new Map<string, ProceduralModelFactory>()
+
+/**
+ * A page can register procedural factories from its own script, mounted alongside
+ * (rather than strictly before) any Scene that consumes them. A brief bounded
+ * retry absorbs that ordering race instead of requiring every consumer page to
+ * get script placement exactly right.
+ */
+async function waitForProceduralFactory(
+  src: string,
+  attempts = 15,
+  delayMs = 20,
+): Promise<ProceduralModelFactory | undefined> {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const factory = proceduralFactories.get(src)
+    if (factory) return factory
+    await new Promise((resolve) => window.setTimeout(resolve, delayMs))
+  }
+  return proceduralFactories.get(src)
+}
 
 export function registerProceduralFactory(src: string, factory: ProceduralModelFactory): () => void {
   if (!src.trim()) throw new Error('A procedural factory source is required')
@@ -147,9 +191,10 @@ export function createSpatialRenderer(
   const root = new THREE.Group()
   scene.add(root)
   const raycaster = new THREE.Raycaster()
-  const pointer = new THREE.Vector2()
+  const hoverPointer = new THREE.Vector2()
   let loaderPromise: Promise<GLTFLoader> | undefined
   let interactiveObject: THREE.Object3D | undefined
+  let interactiveOnFrame: ((context: SpatialFrameContext) => void) | undefined
   let previewMaterial: THREE.MeshStandardMaterial | undefined
   let animationFrame = 0
   let disposed = false
@@ -159,13 +204,41 @@ export function createSpatialRenderer(
   const nodeObjects = new Map<string, THREE.Object3D>()
   let frameSampleStart = performance.now()
   let frameSampleCount = 0
+  let previousFrameTime = performance.now()
+
+  // Ambient cursor tracking, independent of the precise raycast hover above: this
+  // drives camera parallax and any procedural model's onFrame callback, so it is
+  // tracked across the whole window rather than only while the pointer is over
+  // the canvas (a nav-strip scene, for example, is often mostly covered by DOM
+  // controls sitting above it).
+  const pointerNdc = new THREE.Vector2(0, 0)
+  const pointerSmoothed = new THREE.Vector2(0, 0)
+  const pointerRest = new THREE.Vector2(0, 0)
+  let pointerActive = false
+  const cameraBase = { position: camera.position.clone(), target: new THREE.Vector3(0, 0, 0) }
+
+  const updateAmbientPointer = (event: PointerEvent) => {
+    const bounds = canvas.getBoundingClientRect()
+    const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1
+    const y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1
+    pointerNdc.set(THREE.MathUtils.clamp(x, -1.5, 1.5), THREE.MathUtils.clamp(y, -1.5, 1.5))
+    pointerActive = true
+  }
+
+  const clearAmbientPointer = () => {
+    pointerActive = false
+  }
+
+  window.addEventListener('pointermove', updateAmbientPointer)
+  window.addEventListener('blur', clearAmbientPointer)
+  document.addEventListener('pointerleave', clearAmbientPointer)
 
   const updateHover = (event: PointerEvent) => {
     if (!interactiveObject) return
     const bounds = canvas.getBoundingClientRect()
-    pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1
-    pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1
-    raycaster.setFromCamera(pointer, camera)
+    hoverPointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1
+    hoverPointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1
+    raycaster.setFromCamera(hoverPointer, camera)
     const hovered = raycaster.intersectObject(interactiveObject, true).length > 0
     if (previewMaterial) {
       previewMaterial.emissiveIntensity = hovered ? 0.45 : 0.05
@@ -189,6 +262,7 @@ export function createSpatialRenderer(
     })
     nodeObjects.clear()
     interactiveObject = undefined
+    interactiveOnFrame = undefined
     previewMaterial = undefined
 
     const modelNode = flattenNodes(manifest).find(
@@ -200,9 +274,15 @@ export function createSpatialRenderer(
     if (modelNode?.src && modelNode.src !== 'preview') {
       try {
         if (modelNode.kind === 'procedural-model') {
-          const factory = proceduralFactories.get(modelNode.src)
+          const factory = await waitForProceduralFactory(modelNode.src)
           if (!factory) throw new Error(`No procedural factory registered for ${modelNode.src}`)
-          interactiveObject = factory()
+          const result = factory()
+          if (isProceduralModelInstance(result)) {
+            interactiveObject = result.object
+            interactiveOnFrame = result.onFrame
+          } else {
+            interactiveObject = result
+          }
           if (disposed || revision !== renderRevision) {
             disposeObject(interactiveObject)
             return
@@ -248,7 +328,11 @@ export function createSpatialRenderer(
     const cameraNode = flattenNodes(manifest).find(
       (node): node is CameraNode => node.kind === 'camera',
     )
-    if (cameraNode?.position) camera.position.set(...cameraNode.position)
+    if (cameraNode?.position) {
+      camera.position.set(...cameraNode.position)
+      cameraBase.position.set(...cameraNode.position)
+    }
+    if (cameraNode?.target) cameraBase.target.set(...cameraNode.target)
     if (cameraNode?.fov) {
       camera.fov = cameraNode.fov
       camera.updateProjectionMatrix()
@@ -263,9 +347,33 @@ export function createSpatialRenderer(
 
   const frame = (time: number) => {
     if (disposed) return
-    if (interactiveObject && !options.reducedMotion) {
+    const deltaMs = time - previousFrameTime
+    previousFrameTime = time
+    const reducedMotion = !!options.reducedMotion
+
+    pointerSmoothed.lerp(pointerActive ? pointerNdc : pointerRest, 0.06)
+
+    if (interactiveObject && !reducedMotion) {
       interactiveObject.rotation.y = time * 0.00035 + storyProgress * Math.PI * 0.35
     }
+
+    if (!reducedMotion) {
+      camera.position.set(
+        cameraBase.position.x + pointerSmoothed.x * 0.35,
+        cameraBase.position.y - pointerSmoothed.y * 0.22,
+        cameraBase.position.z,
+      )
+      camera.lookAt(cameraBase.target)
+    }
+
+    interactiveOnFrame?.({
+      time,
+      deltaMs,
+      pointer: { x: pointerSmoothed.x, y: pointerSmoothed.y, active: pointerActive },
+      reducedMotion,
+      progress: storyProgress,
+    })
+
     renderer.render(scene, camera)
     if (options.adaptiveQuality) {
       frameSampleCount += 1
@@ -302,6 +410,8 @@ export function createSpatialRenderer(
   }
 
   const setCameraState = (state: { readonly position: readonly [number, number, number]; readonly target: readonly [number, number, number]; readonly fov?: number }) => {
+    cameraBase.position.set(...state.position)
+    cameraBase.target.set(...state.target)
     camera.position.set(...state.position)
     camera.lookAt(...state.target)
     if (state.fov !== undefined) { camera.fov = state.fov; camera.updateProjectionMatrix() }
@@ -311,7 +421,8 @@ export function createSpatialRenderer(
     const target = nodeObjects.get(request.targetId)
     if (!target) return
     if (request.type === 'focus') {
-      camera.lookAt(target.position)
+      cameraBase.target.copy(target.position)
+      camera.lookAt(cameraBase.target)
       return
     }
     if (pulseTimeout !== undefined) window.clearTimeout(pulseTimeout)
@@ -347,6 +458,9 @@ export function createSpatialRenderer(
       renderer.dispose()
       canvas.removeEventListener('pointermove', updateHover)
       canvas.removeEventListener('pointerleave', clearHover)
+      window.removeEventListener('pointermove', updateAmbientPointer)
+      window.removeEventListener('blur', clearAmbientPointer)
+      document.removeEventListener('pointerleave', clearAmbientPointer)
     },
   }
 }
