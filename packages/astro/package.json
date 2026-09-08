@@ -1,0 +1,31 @@
+{
+  "name": "@astro-spatial/astro",
+  "version": "0.1.0-alpha.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./components/Scene.astro": "./src/components/Scene.astro",
+    "./components/Story.astro": "./src/components/Story.astro",
+    "./components/Camera.astro": "./src/components/Camera.astro",
+    "./components/Model.astro": "./src/components/Model.astro",
+    "./components/Light.astro": "./src/components/Light.astro",
+    "./components/Environment.astro": "./src/components/Environment.astro"
+  },
+  "dependencies": {
+    "@astro-spatial/core": "0.1.0-alpha.0",
+    "@astro-spatial/devtools": "file:../devtools",
+    "@astro-spatial/three": "0.1.0-alpha.0",
+    "@astro-spatial/story": "file:../story",
+    "astro": "^5.13.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  }
+}

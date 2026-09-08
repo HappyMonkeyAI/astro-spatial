@@ -1,0 +1,13 @@
+{
+  "schema": "astro-spatial/assets",
+  "version": 1,
+  "assets": [
+    {
+      "id": "hero-object",
+      "kind": "procedural",
+      "src": "preview",
+      "provenance": "hand-authored prototype",
+      "triangleBudget": 50000
+    }
+  ]
+}

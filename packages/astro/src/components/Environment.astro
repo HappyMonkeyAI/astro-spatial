@@ -1,0 +1,14 @@
+---
+import { environmentNode } from '@astro-spatial/core'
+import SceneNode from './SceneNode.astro'
+
+interface Props {
+  id: string
+  src?: string
+  background?: string
+}
+
+const { id, src, background } = Astro.props
+---
+
+<SceneNode node={environmentNode(id, { src, background })} />

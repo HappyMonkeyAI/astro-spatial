@@ -1,0 +1,84 @@
+# Astro Spatial
+
+AI-native spatial pages for Astro and Three.js.
+
+## Authoring rules
+
+- Keep HTML semantic and accessible; use the canvas as progressive enhancement.
+- Use stable kebab-case IDs for every scene and node.
+- Prefer GLB for imported assets and procedural factories for editable code assets.
+- Provide a fallback and respect prefers-reduced-motion.
+- Do not add physics, multiplayer, or WebGPU-only behavior to the core without an explicit extension.
+
+## Components
+
+### Scene (astro-component)
+
+Mounts one validated spatial scene with a semantic canvas and static fallback.
+
+Props:
+- `id`: stable kebab-case scene identifier
+- `nodes`: array of validated spatial nodes
+- `label`: accessible canvas label
+- `fallback`: static fallback text
+- `maxDpr`: positive number, defaults to 1.5
+- `quality`: low, medium, or high performance budget
+
+### Model (scene-node)
+
+References an imported GLB/glTF model.
+
+Props:
+- `id`: stable kebab-case node identifier
+- `src`: public model URL or asset path
+- `position`: three-number array
+- `rotation`: three-number array
+- `scale`: number or three-number array
+
+### Camera (scene-node)
+
+Declares a camera node inside a Scene using stable authoring props.
+
+Props:
+- `id`: stable kebab-case node identifier
+- `position`: three-number array
+- `target`: three-number array
+- `fov`: positive field of view number
+
+### Light (scene-node)
+
+Declares an ambient, directional, or point light node inside a Scene.
+
+Props:
+- `id`: stable kebab-case node identifier
+- `type`: ambient, directional, or point
+- `intensity`: non-negative light intensity
+- `position`: three-number array
+
+### Environment (scene-node)
+
+Declares a scene environment background or optional environment asset source.
+
+Props:
+- `id`: stable kebab-case node identifier
+- `src`: optional environment asset URL
+- `background`: optional CSS/Three.js color string
+
+### ProceduralModel (scene-node)
+
+References an editable TypeScript procedural model factory, including img2threejs-style output.
+
+Props:
+- `id`: stable kebab-case node identifier
+- `src`: factory module URL or asset path
+- `position`: three-number array
+- `rotation`: three-number array
+- `scale`: number or three-number array
+
+### Story (astro-component)
+
+Renders semantic chapters and publishes deterministic native-scroll progress events.
+
+Props:
+- `id`: stable story identifier
+- `chapters`: array of id, title, body, and optional scrollWeight objects

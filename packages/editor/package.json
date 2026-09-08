@@ -1,0 +1,8 @@
+{
+  "name": "@astro-spatial/editor",
+  "version": "0.1.0-alpha.0",
+  "type": "module",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" }, "./ui": { "types": "./dist/ui.d.ts", "import": "./dist/ui.js" } },
+  "dependencies": { "@astro-spatial/core": "file:../core", "@astro-spatial/three": "file:../three" },
+  "scripts": { "build": "tsc -p tsconfig.json", "test": "npm run build && node --test test/index.test.mjs" }
+}

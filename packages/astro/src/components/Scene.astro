@@ -1,0 +1,110 @@
+---
+import { createSceneManifest, type SpatialNode } from '@astro-spatial/core'
+
+interface Props {
+  id?: string
+  nodes?: readonly SpatialNode[]
+  label?: string
+  fallback?: string
+  maxDpr?: number
+  quality?: 'low' | 'medium' | 'high'
+  storyId?: string
+  debug?: boolean
+  adaptiveQuality?: boolean
+  class?: string
+}
+
+const {
+  id = 'spatial-scene',
+  nodes = [],
+  label = 'Interactive spatial scene',
+  fallback = 'Spatial preview',
+  maxDpr = 1.5,
+  quality = 'medium',
+  storyId,
+  debug = false,
+  adaptiveQuality = false,
+  class: className,
+} = Astro.props
+const manifest = createSceneManifest(nodes)
+const manifestJson = JSON.stringify(manifest).replace(/</g, '\\u003c')
+const canvasId = `${id}-canvas`
+---
+
+<div
+  class:list={['spatial-scene', className]}
+  data-spatial-scene={id}
+  data-spatial-manifest={manifestJson}
+  data-spatial-max-dpr={maxDpr}
+  data-spatial-quality={quality}
+  data-spatial-story-id={storyId}
+  data-spatial-debug={debug}
+  data-spatial-adaptive-quality={adaptiveQuality}
+>
+  <div class="spatial-scene__fallback">{fallback}</div>
+  <canvas id={canvasId} class="spatial-scene__canvas" aria-label={label}></canvas>
+  <div hidden><slot /></div>
+  <noscript>A JavaScript-enabled browser is required to view this spatial scene.</noscript>
+</div>
+
+<script>
+  import { mountSpatialScene } from '@astro-spatial/astro/client'
+
+  for (const scene of document.querySelectorAll('[data-spatial-scene]')) {
+    const canvas = scene.querySelector('canvas')
+    const manifestJson = scene.getAttribute('data-spatial-manifest')
+    const maxDpr = Number(scene.getAttribute('data-spatial-max-dpr') || 1.5)
+    const quality = scene.getAttribute('data-spatial-quality') || 'medium'
+    const storyId = scene.getAttribute('data-spatial-story-id') || undefined
+    const debug = scene.getAttribute('data-spatial-debug') === 'true'
+    const adaptiveQuality = scene.getAttribute('data-spatial-adaptive-quality') === 'true'
+    if (!(canvas instanceof HTMLCanvasElement) || !manifestJson) continue
+    try {
+      const manifest = JSON.parse(manifestJson)
+      const childNodes = [...scene.querySelectorAll('[data-spatial-child-node]')]
+        .map((node) => JSON.parse(node.textContent || 'null'))
+        .filter(Boolean)
+      if (childNodes.length) manifest.nodes = [...manifest.nodes, ...childNodes]
+      await mountSpatialScene(canvas, manifest, {
+        maxDpr,
+        quality,
+        sceneId: scene.dataset.spatialScene,
+        storyId,
+        debug,
+        adaptiveQuality,
+        reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      })
+    } catch (error) {
+      console.warn('Astro Spatial scene unavailable; keeping the static fallback.', error)
+      canvas.remove()
+    }
+  }
+</script>
+
+<style>
+  .spatial-scene {
+    position: relative;
+    min-height: 360px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 30%, #202a52, #080b12 70%);
+  }
+
+  .spatial-scene__fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #a9b4c8;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .spatial-scene__canvas {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 520px;
+  }
+</style>

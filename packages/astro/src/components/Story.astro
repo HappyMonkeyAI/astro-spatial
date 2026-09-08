@@ -1,0 +1,78 @@
+---
+import type { SpatialKeyframe, StoryChapter } from '@astro-spatial/story'
+
+interface StoryChapterContent extends StoryChapter {
+  readonly title: string
+  readonly body: string
+}
+
+interface Props {
+  id?: string
+  chapters: readonly StoryChapterContent[]
+  keyframes?: readonly SpatialKeyframe[]
+}
+
+const { id = 'spatial-story', chapters, keyframes = [] } = Astro.props
+---
+
+<div class="spatial-story" id={id} data-spatial-story={id}>
+  <div class="spatial-story__progress" aria-hidden="true">
+    <span class="spatial-story__progress-bar"></span>
+  </div>
+  {chapters.map((chapter, index) => (
+    <section
+      class="spatial-story__chapter"
+      data-story-chapter={chapter.id}
+      data-story-index={index}
+      aria-labelledby={`${id}-${chapter.id}-title`}
+    >
+      <div class="spatial-story__copy">
+        <p>Chapter {String(index + 1).padStart(2, '0')}</p>
+        <h2 id={`${id}-${chapter.id}-title`}>{chapter.title}</h2>
+        <p>{chapter.body}</p>
+      </div>
+    </section>
+  ))}
+</div>
+
+<script define:vars={{ storyKeyframes: keyframes }}>
+  import { interpolateSpatialKeyframes, progressFromScroll } from '@astro-spatial/story'
+
+  for (const story of document.querySelectorAll<HTMLElement>('[data-spatial-story]')) {
+    const progressBar = story.querySelector<HTMLElement>('.spatial-story__progress-bar')
+    const chapters = story.querySelectorAll<HTMLElement>('[data-story-chapter]')
+    const update = () => {
+      const rect = story.getBoundingClientRect()
+      const scrollTop = Math.max(0, -rect.top)
+      const progress = progressFromScroll(scrollTop, story.scrollHeight, window.innerHeight)
+      if (progressBar) progressBar.style.transform = `scaleY(${progress})`
+      story.dispatchEvent(new CustomEvent('astro-spatial:story-progress', {
+        bubbles: true,
+        detail: {
+          storyId: story.dataset.spatialStory,
+          progress,
+          camera: storyKeyframes.length ? interpolateSpatialKeyframes(storyKeyframes, progress) : undefined,
+        },
+      }))
+      const activeIndex = Math.min(chapters.length - 1, Math.floor(progress * chapters.length))
+      chapters.forEach((chapter, index) => {
+        chapter.toggleAttribute('data-story-active', index === activeIndex)
+      })
+    }
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    update()
+  }
+</script>
+
+<style>
+  .spatial-story { position: relative; }
+  .spatial-story__progress { position: fixed; inset: 1rem auto 1rem 1rem; z-index: 3; width: 2px; background: #263047; transform-origin: top; }
+  .spatial-story__progress-bar { display: block; width: 100%; height: 100%; background: #8c7bff; transform: scaleY(0); transform-origin: top; }
+  .spatial-story__chapter { min-height: 100vh; display: grid; place-items: center; padding: 5rem 2rem; box-sizing: border-box; }
+  .spatial-story__copy { max-width: 34rem; margin-left: 4rem; opacity: .55; transition: opacity .25s ease; }
+  [data-story-active] .spatial-story__copy { opacity: 1; }
+  .spatial-story__copy h2 { font-size: clamp(2.5rem, 7vw, 7rem); line-height: .95; letter-spacing: -.06em; margin: .5rem 0 1rem; }
+  .spatial-story__copy p { color: #a9b4c8; line-height: 1.6; }
+  @media (prefers-reduced-motion: reduce) { .spatial-story__copy { transition: none; } }
+</style>

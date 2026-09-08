@@ -1,0 +1,16 @@
+{
+  "name": "astro-spatial-example",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astro-spatial/astro": "0.1.0-alpha.0",
+    "@astro-spatial/core": "0.1.0-alpha.0",
+    "@astro-spatial/devtools": "file:../../packages/devtools",
+    "@astro-spatial/three": "0.1.0-alpha.0",
+    "astro": "^5.13.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build"
+  }
+}

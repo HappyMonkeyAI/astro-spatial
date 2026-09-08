@@ -1,0 +1,15 @@
+---
+import { cameraNode, type Vec3 } from '@astro-spatial/core'
+import SceneNode from './SceneNode.astro'
+
+interface Props {
+  id: string
+  position?: Vec3
+  target?: Vec3
+  fov?: number
+}
+
+const { id, position, target, fov } = Astro.props
+---
+
+<SceneNode node={cameraNode(id, { position, target, fov })} />

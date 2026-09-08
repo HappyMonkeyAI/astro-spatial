@@ -1,0 +1,8 @@
+{
+  "schema": "astro-spatial/scene",
+  "version": 1,
+  "nodes": [
+    { "id": "hero-camera", "kind": "camera", "position": [0, 1.2, 5], "fov": 45 },
+    { "id": "hero-object", "kind": "procedural-model", "src": "preview", "scale": 1.1 }
+  ]
+}

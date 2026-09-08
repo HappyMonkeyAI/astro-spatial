@@ -1,0 +1,12 @@
+---
+import type { SpatialNode } from '@astro-spatial/core'
+
+interface Props {
+  node: SpatialNode
+}
+
+const { node } = Astro.props
+const nodeJson = JSON.stringify(node).replace(/</g, '\\u003c')
+---
+
+<script type="application/json" data-spatial-child-node set:html={nodeJson}></script>

@@ -1,0 +1,43 @@
+---
+const editorManifest = {
+  schema: 'astro-spatial/scene',
+  version: 1,
+  nodes: [
+    { id: 'editor-camera', kind: 'camera', position: [0, 1, 5], fov: 45 },
+    { id: 'editor-object', kind: 'procedural-model', src: 'preview', position: [0, 0, 0], scale: 1 },
+  ],
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro Spatial Editor</title>
+    <style>
+      :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #080b12; color: #f4f6fb; }
+      body { margin: 0; padding: 2rem; } main { max-width: 1100px; margin: auto; display: grid; gap: 1rem; }
+      canvas { width: 100%; height: 520px; display: block; border-radius: 1rem; border: 1px solid #263047; }
+    </style>
+  </head>
+  <body>
+    <main id="editor-workspace">
+      <h1>Astro Spatial editor</h1>
+      <canvas aria-label="Live scene editor preview"></canvas>
+      <div id="editor-controls"></div>
+    </main>
+  </body>
+</html>
+
+<script define:vars={{ editorManifest }}>
+  import { SceneEditor } from '@astro-spatial/editor'
+  import { mountSceneEditorPreview } from '@astro-spatial/editor/ui'
+
+  const host = document.querySelector('#editor-controls')
+  const canvas = document.querySelector('canvas')
+  if (host instanceof HTMLElement && canvas instanceof HTMLCanvasElement) {
+    const editor = new SceneEditor(editorManifest)
+    await mountSceneEditorPreview(host, canvas, editor)
+  }
+</script>

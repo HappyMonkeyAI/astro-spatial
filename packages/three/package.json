@@ -1,0 +1,19 @@
+{
+  "name": "@astro-spatial/three",
+  "version": "0.1.0-alpha.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@astro-spatial/core": "0.1.0-alpha.0",
+    "three": "^0.180.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/index.test.mjs"
+  }
+}

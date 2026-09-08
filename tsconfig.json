@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/assets" },
+    { "path": "./packages/story" },
+    { "path": "./packages/devtools" },
+    { "path": "./packages/webgpu" },
+    { "path": "./packages/physics" },
+    { "path": "./packages/network" },
+    { "path": "./packages/editor" },
+    { "path": "./packages/game" },
+    { "path": "./packages/world" },
+    { "path": "./packages/three" },
+    { "path": "./packages/astro" }
+  ]
+}

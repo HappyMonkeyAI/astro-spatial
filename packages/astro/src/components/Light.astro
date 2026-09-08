@@ -1,0 +1,15 @@
+---
+import { lightNode, type LightNode, type Vec3 } from '@astro-spatial/core'
+import SceneNode from './SceneNode.astro'
+
+interface Props {
+  id: string
+  type: LightNode['lightType']
+  intensity?: number
+  position?: Vec3
+}
+
+const { id, type, intensity, position } = Astro.props
+---
+
+<SceneNode node={lightNode(id, type, { intensity, position })} />

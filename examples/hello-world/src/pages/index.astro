@@ -1,0 +1,47 @@
+---
+import Scene from '@astro-spatial/astro/components/Scene.astro'
+import Camera from '@astro-spatial/astro/components/Camera.astro'
+import Light from '@astro-spatial/astro/components/Light.astro'
+import { cameraNode, proceduralModelNode } from '@astro-spatial/core'
+
+const title = 'Astro Spatial'
+const heroNodes = [
+  cameraNode('hero-camera', { position: [0, 1.2, 5], fov: 45 }),
+  proceduralModelNode('hero-object', 'preview', { scale: 1.1 }),
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <style>
+      :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #080b12; color: #f4f6fb; }
+      body { margin: 0; min-height: 100vh; }
+      main { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr); gap: 2rem; align-items: center; max-width: 1200px; margin: auto; padding: 2rem; box-sizing: border-box; }
+      .copy { max-width: 34rem; }
+      h1 { font-size: clamp(2.5rem, 6vw, 5.5rem); line-height: .95; letter-spacing: -.06em; margin: .5rem 0 1.5rem; }
+      p { color: #a9b4c8; line-height: 1.6; }
+      .scene-shell { position: relative; min-height: 520px; border: 1px solid #263047; border-radius: 1.5rem; overflow: hidden; background: radial-gradient(circle at 50% 30%, #202a52, #080b12 70%); }
+      .scene-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #a9b4c8; letter-spacing: .08em; text-transform: uppercase; font-size: .72rem; }
+      canvas { position: relative; z-index: 1; display: block; width: 100%; height: 520px; }
+      @media (max-width: 760px) { main { grid-template-columns: 1fr; } .scene-shell, canvas { min-height: 360px; height: 360px; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="copy">
+        <p>ASTRO SPATIAL / M1 PROOF</p>
+        <h1>Spatial pages, authored as understandable code.</h1>
+        <p>The canvas is an enhancement. The page remains semantic, responsive, and readable while the scene runtime evolves.</p>
+        <button data-spatial-action="pulse" data-spatial-target="hero-object" data-spatial-scene-target="hero">Pulse the object</button>
+      </section>
+      <Scene id="hero" nodes={heroNodes} label="Hover the spatial object to highlight it" class="scene-shell">
+        <Camera id="hero-camera-child" position={[0, 1.2, 5]} fov={45} />
+        <Light id="hero-light-child" type="ambient" intensity={0.7} />
+      </Scene>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "components": [
+    {
+      "name": "Scene",
+      "kind": "astro-component",
+      "description": "Mounts one validated spatial scene with a semantic canvas and static fallback.",
+      "props": {
+        "id": "stable kebab-case scene identifier",
+        "nodes": "array of validated spatial nodes",
+        "label": "accessible canvas label",
+        "fallback": "static fallback text",
+        "maxDpr": "positive number, defaults to 1.5",
+        "quality": "low, medium, or high performance budget"
+      }
+    },
+    {
+      "name": "Model",
+      "kind": "scene-node",
+      "description": "References an imported GLB/glTF model.",
+      "props": {
+        "id": "stable kebab-case node identifier",
+        "src": "public model URL or asset path",
+        "position": "three-number array",
+        "rotation": "three-number array",
+        "scale": "number or three-number array"
+      }
+    },
+    {
+      "name": "Camera",
+      "kind": "scene-node",
+      "description": "Declares a camera node inside a Scene using stable authoring props.",
+      "props": {
+        "id": "stable kebab-case node identifier",
+        "position": "three-number array",
+        "target": "three-number array",
+        "fov": "positive field of view number"
+      }
+    },
+    {
+      "name": "Light",
+      "kind": "scene-node",
+      "description": "Declares an ambient, directional, or point light node inside a Scene.",
+      "props": {
+        "id": "stable kebab-case node identifier",
+        "type": "ambient, directional, or point",
+        "intensity": "non-negative light intensity",
+        "position": "three-number array"
+      }
+    },
+    {
+      "name": "Environment",
+      "kind": "scene-node",
+      "description": "Declares a scene environment background or optional environment asset source.",
+      "props": {
+        "id": "stable kebab-case node identifier",
+        "src": "optional environment asset URL",
+        "background": "optional CSS/Three.js color string"
+      }
+    },
+    {
+      "name": "ProceduralModel",
+      "kind": "scene-node",
+      "description": "References an editable TypeScript procedural model factory, including img2threejs-style output.",
+      "props": {
+        "id": "stable kebab-case node identifier",
+        "src": "factory module URL or asset path",
+        "position": "three-number array",
+        "rotation": "three-number array",
+        "scale": "number or three-number array"
+      }
+    },
+    {
+      "name": "Story",
+      "kind": "astro-component",
+      "description": "Renders semantic chapters and publishes deterministic native-scroll progress events.",
+      "props": {
+        "id": "stable story identifier",
+        "chapters": "array of id, title, body, and optional scrollWeight objects"
+      }
+    }
+  ]
+}

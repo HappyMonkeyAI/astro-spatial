@@ -1,0 +1,27 @@
+{
+  "name": "astro-spatial",
+  "private": true,
+  "version": "0.1.0-alpha.0",
+  "description": "An AI-native spatial web framework for Astro and Three.js.",
+  "packageManager": "npm@11.17.0",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc -b",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "agent:generate": "node scripts/generate-llms.mjs",
+    "agent:check": "node scripts/generate-llms.mjs --check",
+    "spatial:inspect": "npm run build --workspace=@astro-spatial/devtools && node scripts/inspect-scene.mjs"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0",
+    "astro": "^5.13.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  }
+}

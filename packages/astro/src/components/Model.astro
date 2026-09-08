@@ -1,0 +1,16 @@
+---
+import { modelNode, type Vec3 } from '@astro-spatial/core'
+import SceneNode from './SceneNode.astro'
+
+interface Props {
+  id: string
+  src: string
+  position?: Vec3
+  rotation?: Vec3
+  scale?: number | Vec3
+}
+
+const { id, src, position, rotation, scale } = Astro.props
+---
+
+<SceneNode node={modelNode(id, src, { position, rotation, scale })} />

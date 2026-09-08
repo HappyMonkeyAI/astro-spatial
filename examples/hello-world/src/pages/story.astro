@@ -1,0 +1,29 @@
+---
+import Story from '@astro-spatial/astro/components/Story.astro'
+
+const chapters = [
+  { id: 'threshold', title: 'Enter the spatial page.', body: 'Native scroll is the source of truth for the story position.' },
+  { id: 'signal', title: 'Let the scene answer.', body: 'A canvas can subscribe to the same progress event without owning document scroll.' },
+  { id: 'departure', title: 'Keep the meaning in HTML.', body: 'The story remains readable and navigable when motion is reduced or unavailable.' },
+]
+const keyframes = [
+  { id: 'arrival-camera', progress: 0, position: [0, 1.2, 6], target: [0, 0, 0], fov: 45 },
+  { id: 'departure-camera', progress: 1, position: [2, 2, 4], target: [0, 0.5, 0], fov: 52 },
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro Spatial Story</title>
+    <style>
+      :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #080b12; color: #f4f6fb; }
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <Story id="demo-story" chapters={chapters} keyframes={keyframes} />
+  </body>
+</html>
