@@ -11,6 +11,14 @@ interface Props {
   storyId?: string
   debug?: boolean
   adaptiveQuality?: boolean
+  /** Subtle cursor-driven camera parallax. Off by default: a moving camera fights
+   * precise pointer interactions elsewhere in the scene (e.g. transform gizmos),
+   * so only opt in for purely decorative scenes. */
+  pointerParallax?: boolean
+  /** Fill the parent container (min-height: 0; height: 100%) instead of the
+   * default fixed-height layout — for embedding a scene in a constrained shell
+   * like a nav bar, without reaching for :global() overrides from outside. */
+  fill?: boolean
   class?: string
 }
 
@@ -24,6 +32,8 @@ const {
   storyId,
   debug = false,
   adaptiveQuality = false,
+  pointerParallax = false,
+  fill = false,
   class: className,
 } = Astro.props
 const manifest = createSceneManifest(nodes)
@@ -32,7 +42,7 @@ const canvasId = `${id}-canvas`
 ---
 
 <div
-  class:list={['spatial-scene', className]}
+  class:list={['spatial-scene', fill && 'spatial-scene--fill', className]}
   data-spatial-scene={id}
   data-spatial-manifest={manifestJson}
   data-spatial-max-dpr={maxDpr}
@@ -40,6 +50,7 @@ const canvasId = `${id}-canvas`
   data-spatial-story-id={storyId}
   data-spatial-debug={debug}
   data-spatial-adaptive-quality={adaptiveQuality}
+  data-spatial-pointer-parallax={pointerParallax}
 >
   <div class="spatial-scene__fallback">{fallback}</div>
   <canvas id={canvasId} class="spatial-scene__canvas" aria-label={label}></canvas>
@@ -58,6 +69,7 @@ const canvasId = `${id}-canvas`
     const storyId = scene.getAttribute('data-spatial-story-id') || undefined
     const debug = scene.getAttribute('data-spatial-debug') === 'true'
     const adaptiveQuality = scene.getAttribute('data-spatial-adaptive-quality') === 'true'
+    const pointerParallax = scene.getAttribute('data-spatial-pointer-parallax') === 'true'
     if (!(canvas instanceof HTMLCanvasElement) || !manifestJson) continue
     try {
       const manifest = JSON.parse(manifestJson)
@@ -72,6 +84,7 @@ const canvasId = `${id}-canvas`
         storyId,
         debug,
         adaptiveQuality,
+        pointerParallax,
         reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       })
     } catch (error) {
@@ -106,5 +119,19 @@ const canvasId = `${id}-canvas`
     display: block;
     width: 100%;
     height: 520px;
+  }
+
+  .spatial-scene--fill {
+    min-height: 0;
+    height: 100%;
+    background: transparent;
+  }
+
+  .spatial-scene--fill .spatial-scene__canvas {
+    height: 100%;
+  }
+
+  .spatial-scene--fill .spatial-scene__fallback {
+    display: none;
   }
 </style>

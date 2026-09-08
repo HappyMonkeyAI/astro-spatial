@@ -1,0 +1,559 @@
+---
+import Scene from '@astro-spatial/astro/components/Scene.astro'
+import Camera from '@astro-spatial/astro/components/Camera.astro'
+import Light from '@astro-spatial/astro/components/Light.astro'
+import Environment from '@astro-spatial/astro/components/Environment.astro'
+import { proceduralModelNode, cameraNode } from '@astro-spatial/core'
+
+const title = 'HappyMonkey.AI — AI Automation Consultancy'
+const description =
+  'HappyMonkey.AI ships working AI automation: process automation, conversational and voice agents, agent/MCP orchestration, and custom AI tools, delivered as software that runs.'
+
+const heroNodes = [
+  cameraNode('hero-camera', { position: [0, 1.4, 5.5], fov: 42 }),
+  proceduralModelNode('hero-swarm', 'swarm', { scale: 1 }),
+]
+
+const navNodes = [
+  cameraNode('nav-camera', { position: [0, 0, 3], fov: 45 }),
+  proceduralModelNode('nav-ribbon', 'nav-ribbon'),
+]
+
+const poweredBy = ['OpenAI', 'Anthropic', 'n8n', 'LangChain', 'Relevance AI', 'Voiceflow']
+
+const portfolio = [
+  { name: 'ZeroGTerminal', blurb: 'AI-first terminal manager with multi-pane support, session persistence, and built-in speech-to-text.' },
+  { name: 'Riffly', blurb: 'A music experience. Hear it. Play it.' },
+  { name: 'GOSafe', blurb: 'Location-based disaster risk intelligence.' },
+  { name: 'Along For', blurb: 'A journey companion.' },
+  { name: 'AION', blurb: 'A browser-based strategy game.' },
+  { name: 'A2M', blurb: 'An AI app marketplace.' },
+  { name: 'Glitch', blurb: 'A low-fi AI cyber pet.' },
+  { name: 'GitDash', blurb: 'A developer productivity dashboard for GitHub.' },
+  { name: 'PopulAI', blurb: 'A 3D god game.' },
+]
+
+const solutions = [
+  'Process Automation',
+  'Intelligent Analytics',
+  'Conversational AI',
+  'Custom AI Solutions',
+  'Predictive Intelligence',
+  'AI Security',
+]
+
+const serviceCategories = [
+  { name: 'Process Automation', blurb: 'Repeatable work taken off people’s plates with a workflow that actually runs.' },
+  { name: 'Conversational / Voice', blurb: 'A voice or chat path with a clear job: answer, capture, follow up.' },
+  { name: 'Agent & MCP', blurb: 'Local-first agents, MCP servers, and orchestration that operators can trust.' },
+  { name: 'Custom AI', blurb: 'A specific tool or integration, delivered as working software.' },
+]
+
+const features = [
+  { name: 'Easy integration', blurb: 'Fits the tools and workflows already in use, rather than replacing them.' },
+  { name: 'Scalability', blurb: 'Starts as one working slice, extends as the next job that hurts becomes clear.' },
+  { name: 'Continuous learning', blurb: 'Agents and workflows improve as real usage and feedback accumulate.' },
+  { name: 'Data security', blurb: 'Local-first where it matters, with clear provenance over what runs where.' },
+]
+
+const applications = [
+  'AI Chatbots',
+  'Content Creation',
+  'Lead Generation',
+  'Data Insights',
+  'AI Consulting',
+  'Agent & MCP Systems',
+]
+
+const openSourceTools = [
+  { name: 'MonkeySwarm', blurb: 'MCP swarm installer.' },
+  { name: 'vibes', blurb: 'Autonomous TUI agent harness.' },
+  { name: 'miso-tts', blurb: 'Local TTS on NVIDIA GPUs.' },
+  { name: 'AgentsProtocol', blurb: 'AI agent development framework.' },
+  { name: 'repospot', blurb: 'AI-powered code review squad.' },
+  { name: 'prompt-os', blurb: 'AI-first Linux bootstrap.' },
+]
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        background: #080b12;
+        color: #f4f6fb;
+        --accent: #8c7bff;
+        --accent-warm: #ffcf5c;
+        --muted: #a9b4c8;
+        --line: #263047;
+        --panel: #0e1320;
+        --tilt-x: 0;
+        --tilt-y: 0;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      main { display: block; }
+      a { color: inherit; }
+      section { padding: 5rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+      h1, h2, h3 { line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 1rem; }
+      .tilt-title {
+        transform: perspective(1200px) rotateX(calc(var(--tilt-x) * 1deg)) rotateY(calc(var(--tilt-y) * 1deg));
+        transition: transform 0.12s linear;
+      }
+      main section h2 {
+        transform: perspective(1600px) rotateX(calc(var(--tilt-x) * 0.4deg)) rotateY(calc(var(--tilt-y) * 0.4deg));
+        transition: transform 0.12s linear;
+      }
+      p { color: var(--muted); line-height: 1.65; margin: 0 0 1rem; }
+      .eyebrow { color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+      /* nav */
+      .site-nav {
+        position: sticky; top: 0; z-index: 10;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.5rem; max-width: 1200px; margin: 0 auto;
+        backdrop-filter: blur(10px); background: rgba(8, 11, 18, 0.55);
+        border-bottom: 1px solid var(--line);
+        min-height: 68px;
+      }
+      .nav-content { position: relative; z-index: 1; }
+      .nav-scene {
+        position: absolute; inset: 0; z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .site-nav .wordmark { font-weight: 700; font-size: 1.05rem; text-decoration: none; }
+      .site-nav .wordmark span { color: var(--accent-warm); }
+      .site-nav ul { list-style: none; display: flex; gap: 1.5rem; margin: 0; padding: 0; }
+      .site-nav ul a { text-decoration: none; color: var(--muted); font-size: 0.88rem; }
+      .site-nav ul a:hover { color: #fff; }
+      .site-nav .cta-small { display: inline-block; }
+      .nav-links { display: flex; align-items: center; gap: 2rem; }
+      @media (max-width: 760px) { .site-nav ul { display: none; } }
+
+      /* buttons */
+      .btn { display: inline-block; padding: 0.72rem 1.4rem; border-radius: 999px; font-size: 0.88rem; font-weight: 600; text-decoration: none; border: 1px solid transparent; cursor: pointer; }
+      .btn-primary { background: var(--accent); color: #fff; }
+      .btn-primary:hover { background: #7a68ff; }
+      .btn-ghost { border-color: var(--line); color: #f4f6fb; background: transparent; }
+      .btn-ghost:hover { border-color: var(--accent); }
+      .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.75rem 0; }
+
+      /* hero */
+      .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr); gap: 2.5rem; align-items: center; padding-top: 4rem; }
+      .hero h1 { font-size: clamp(2.4rem, 5.4vw, 4.4rem); }
+      .hero .lede { max-width: 34rem; font-size: 1.05rem; }
+      .powered-by { margin-top: 1.5rem; }
+      .powered-by p { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.6rem; }
+      .powered-by ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; }
+      .powered-by li { border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.85rem; font-size: 0.78rem; color: var(--muted); }
+      .scene-shell { position: relative; min-height: 460px; border: 1px solid var(--line); border-radius: 1.5rem; overflow: hidden; background: radial-gradient(circle at 50% 30%, #202a52, #080b12 70%); }
+      .scene-shell canvas { width: 100%; height: 460px; }
+      @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .scene-shell, .scene-shell canvas { min-height: 320px; height: 320px; } }
+
+      /* grids and cards */
+      .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 2rem; }
+      .card, .tile {
+        position: relative;
+        overflow: hidden;
+        transform: perspective(800px) rotateX(calc(var(--rx, 0) * 1deg)) rotateY(calc(var(--ry, 0) * 1deg)) translateZ(calc(var(--rz, 0) * 1px));
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out, border-color 0.15s ease-out;
+        will-change: transform;
+      }
+      .card::after, .tile::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: var(--glow, 0);
+        transition: opacity 0.2s ease-out;
+        background: radial-gradient(220px circle at var(--glow-x, 50%) var(--glow-y, 50%), rgba(140, 123, 255, 0.28), transparent 65%);
+      }
+      .card { border: 1px solid var(--line); background: var(--panel); border-radius: 1rem; padding: 1.5rem; }
+      .card h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+      .card p { font-size: 0.92rem; margin: 0; }
+      .card a.card-link { text-decoration: none; }
+
+      .pill-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0 0; }
+      .pill-row span { border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 1rem; font-size: 0.82rem; color: var(--muted); }
+
+      .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 2rem; }
+      .tile { border: 1px solid var(--line); border-radius: 0.9rem; padding: 1.1rem 1.3rem; font-weight: 600; font-size: 0.95rem; background: var(--panel); }
+      .card:hover, .tile:hover { border-color: var(--accent); }
+
+      /* consultancy */
+      .consultancy { background: linear-gradient(180deg, rgba(140,123,255,0.08), transparent); border-radius: 1.5rem; }
+      .consultancy blockquote { font-size: 1.5rem; line-height: 1.35; margin: 0 0 1.5rem; font-weight: 500; color: #f4f6fb; letter-spacing: -0.01em; }
+      .price-row { display: flex; gap: 2rem; flex-wrap: wrap; align-items: baseline; margin: 1.5rem 0; }
+      .price-row .price { font-size: 2rem; font-weight: 700; color: var(--accent-warm); }
+      .price-row .price small { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+      .contact-line { font-size: 0.95rem; color: var(--muted); }
+
+      /* contact form */
+      form.contact-form { display: grid; gap: 1rem; max-width: 32rem; margin-top: 1.5rem; }
+      form.contact-form label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.35rem; }
+      form.contact-form input, form.contact-form textarea {
+        width: 100%; padding: 0.75rem 0.9rem; border-radius: 0.6rem; border: 1px solid var(--line);
+        background: var(--panel); color: #f4f6fb; font: inherit;
+      }
+      form.contact-form textarea { min-height: 7rem; resize: vertical; }
+      .form-note { font-size: 0.78rem; color: var(--muted); margin-top: -0.5rem; }
+
+      footer { border-top: 1px solid var(--line); padding: 2.5rem 1.5rem; }
+      .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; align-items: center; }
+      .footer-legal { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); }
+      .footer-inner p { margin: 0; font-size: 0.85rem; }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { scroll-behavior: auto !important; }
+        .tilt-title, main section h2, .card, .tile {
+          transform: none !important;
+          transition: none !important;
+        }
+        .card::after, .tile::after { display: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      import { registerProceduralFactory } from '@astro-spatial/three'
+      import * as THREE from 'three'
+
+      registerProceduralFactory('swarm', () => {
+        const group = new THREE.Group()
+
+        const nodeGeometry = new THREE.IcosahedronGeometry(0.16, 1)
+        const nodeMaterial = new THREE.MeshStandardMaterial({
+          color: '#ffcf5c',
+          emissive: '#c98f1c',
+          emissiveIntensity: 0.35,
+          roughness: 0.35,
+          metalness: 0.15,
+        })
+
+        const count = 14
+        const radius = 1.5
+        const basePositions = []
+        const nodeMeshes = []
+        for (let i = 0; i < count; i += 1) {
+          const phi = Math.acos(1 - (2 * (i + 0.5)) / count)
+          const theta = Math.PI * (1 + Math.sqrt(5)) * i
+          const position = new THREE.Vector3(
+            Math.cos(theta) * Math.sin(phi) * radius,
+            Math.sin(theta) * Math.sin(phi) * radius,
+            Math.cos(phi) * radius,
+          )
+          basePositions.push(position)
+          const node = new THREE.Mesh(nodeGeometry, nodeMaterial)
+          node.position.copy(position)
+          group.add(node)
+          nodeMeshes.push(node)
+        }
+
+        const core = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(0.45, 2),
+          new THREE.MeshStandardMaterial({
+            color: '#8c7bff',
+            emissive: '#5e4fff',
+            emissiveIntensity: 0.5,
+            roughness: 0.2,
+            metalness: 0.3,
+          }),
+        )
+        group.add(core)
+
+        const linePositions = []
+        basePositions.forEach((position) => {
+          linePositions.push(0, 0, 0, position.x, position.y, position.z)
+        })
+        const lineGeometry = new THREE.BufferGeometry()
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3))
+        const lines = new THREE.LineSegments(
+          lineGeometry,
+          new THREE.LineBasicMaterial({ color: '#4a3f8f', transparent: true, opacity: 0.55 }),
+        )
+        group.add(lines)
+
+        return {
+          object: group,
+          onFrame: ({ time, pointer, reducedMotion }) => {
+            if (reducedMotion) return
+            // Cursor tilts the whole swarm and the outer nodes drift outward, so the
+            // hero visibly reacts to the pointer instead of only auto-rotating.
+            group.rotation.x = pointer.y * 0.32
+            group.rotation.z = -pointer.x * 0.18
+            const pointerMagnitude = Math.min(1, Math.hypot(pointer.x, pointer.y))
+            const spread = 1 + pointerMagnitude * 0.16
+            nodeMeshes.forEach((node, i) => {
+              const base = basePositions[i]
+              node.position.set(base.x * spread, base.y * spread, base.z * spread)
+            })
+            core.scale.setScalar(1 + Math.sin(time * 0.0018) * 0.06 + pointerMagnitude * 0.08)
+          },
+        }
+      })
+
+      registerProceduralFactory('nav-ribbon', () => {
+        // Sized generously wide relative to the camera's visible frame at the nav
+        // scene's fov/distance, so the ribbon still reaches both edges on an
+        // ultra-wide viewport. pointerReach maps the canvas's -1..1 pointer range
+        // onto local u so the bulge tracks under the cursor at typical nav-bar
+        // aspect ratios; it is an approximation, not exact projection math.
+        const width = 36
+        const pointerReach = 1.2
+        const geometry = new THREE.PlaneGeometry(width, 1.4, 72, 1)
+        const basePositions = geometry.attributes.position.array.slice()
+        const material = new THREE.MeshStandardMaterial({
+          color: '#5e4fff',
+          emissive: '#8c7bff',
+          emissiveIntensity: 0.55,
+          roughness: 0.35,
+          metalness: 0.15,
+          transparent: true,
+          opacity: 0.85,
+          side: THREE.DoubleSide,
+        })
+        const mesh = new THREE.Mesh(geometry, material)
+        const posAttr = geometry.attributes.position
+
+        return {
+          object: mesh,
+          onFrame: ({ time, pointer, reducedMotion }) => {
+            if (reducedMotion) return
+            for (let i = 0; i < posAttr.count; i += 1) {
+              const u = basePositions[i * 3] / (width / 2)
+              const distance = Math.abs(u - pointer.x * pointerReach)
+              const bulge = Math.exp(-distance * distance * 3) * 0.45
+              const wave = Math.sin(time * 0.0015 + u * 3.2) * 0.05
+              posAttr.setZ(i, bulge + wave)
+            }
+            posAttr.needsUpdate = true
+            geometry.computeVertexNormals()
+          },
+        }
+      })
+    </script>
+    <header class="site-nav">
+      <div class="nav-scene" aria-hidden="true">
+        <Scene id="nav" nodes={navNodes} label="" fallback="" quality="low" maxDpr={1} fill />
+      </div>
+      <a class="wordmark nav-content" href="#home">Happy<span>Monkey</span>.AI</a>
+      <div class="nav-links nav-content">
+        <ul>
+          <li><a href="#solutions">Solutions</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#applications">Applications</a></li>
+          <li><a href="#insights">Insights</a></li>
+          <li><a href="#work">Work</a></li>
+        </ul>
+        <a class="btn btn-primary cta-small" href="#contact">Get Started</a>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero">
+        <div class="copy">
+          <p class="eyebrow">AI Automation Consultancy &middot; London, UK</p>
+          <h1 class="tilt-title">Streamline workflows, reduce costs, and boost productivity.</h1>
+          <p class="lede">Transform your business with AI automation. We ship a first working slice of AI for the one job that hurts, then extend it.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#solutions">Explore Solutions</a>
+            <a class="btn btn-ghost" href="#contact">Schedule Demo</a>
+          </div>
+          <div class="powered-by">
+            <p>Powered by</p>
+            <ul>
+              {poweredBy.map((name) => <li>{name}</li>)}
+            </ul>
+          </div>
+        </div>
+        <Scene
+          id="hero"
+          nodes={heroNodes}
+          label="An orbiting swarm of connected agent nodes around a central core, representing HappyMonkey's agent orchestration"
+          fallback="Loading spatial preview"
+          class="scene-shell"
+          pointerParallax
+        >
+          <Camera id="hero-camera-child" position={[0, 1.4, 5.5]} fov={42} />
+          <Light id="hero-light-ambient" type="ambient" intensity={0.7} />
+          <Light id="hero-light-key" type="directional" intensity={1.6} position={[3, 4, 4]} />
+          <Environment id="hero-environment" background="#080b12" />
+        </Scene>
+      </section>
+
+      <section id="work" class="portfolio">
+        <p class="eyebrow">Recent work</p>
+        <h2>Shipped, not slideware.</h2>
+        <div class="card-grid">
+          {portfolio.map((project) => (
+            <div class="card">
+              <h3>{project.name}</h3>
+              <p>{project.blurb}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="solutions" class="solutions">
+        <p class="eyebrow">Solutions</p>
+        <h2>Six ways in, one delivery model.</h2>
+        <div class="pill-row">
+          {solutions.map((item) => <span>{item}</span>)}
+        </div>
+        <h3 style="margin-top: 2.5rem;">How we deliver</h3>
+        <div class="card-grid">
+          {serviceCategories.map((service) => (
+            <div class="card">
+              <h3>{service.name}</h3>
+              <p>{service.blurb}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="features" class="features">
+        <p class="eyebrow">Features</p>
+        <h2>Why teams choose HappyMonkey.</h2>
+        <div class="card-grid">
+          {features.map((feature) => (
+            <div class="card">
+              <h3>{feature.name}</h3>
+              <p>{feature.blurb}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="applications" class="applications">
+        <p class="eyebrow">Applications</p>
+        <h2>Where it shows up day to day.</h2>
+        <div class="tile-grid">
+          {applications.map((item) => <div class="tile">{item}</div>)}
+        </div>
+      </section>
+
+      <section id="consultancy" class="consultancy">
+        <p class="eyebrow">Consultancy</p>
+        <blockquote>
+          Stop missing calls and drowning in admin. We ship a first working slice of AI for that one job that hurts.
+        </blockquote>
+        <div class="price-row">
+          <span class="price">&pound;70 <small>/ hour</small></span>
+          <span class="price">&pound;500 <small>/ day</small></span>
+        </div>
+        <p class="contact-line">Call +44 7345 637409 or use the form below to schedule a demo.</p>
+        <a class="btn btn-primary" href="#contact">Schedule Demo</a>
+      </section>
+
+      <section id="open-source" class="open-source">
+        <p class="eyebrow">Open source</p>
+        <h2>Tools we build in the open.</h2>
+        <div class="card-grid">
+          {openSourceTools.map((tool) => (
+            <a class="card-link" href={`https://github.com/HappyMonkeyAI/${tool.name}`} target="_blank" rel="noreferrer">
+              <div class="card">
+                <h3>{tool.name}</h3>
+                <p>{tool.blurb}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section id="insights" class="insights">
+        <p class="eyebrow">Insights</p>
+        <h2>Notes from the work.</h2>
+        <p class="lede">Project roundups and technical deep-dives, including MCP server design and the GOSafe implementation.</p>
+      </section>
+
+      <section id="contact" class="contact">
+        <p class="eyebrow">Contact</p>
+        <h2>Tell us about the job that hurts.</h2>
+        <p class="contact-line">+44 7345 637409 &middot; London, UK</p>
+        <form class="contact-form">
+          <div>
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div>
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" type="text" />
+          </div>
+          <div>
+            <label for="message">Message</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Send message</button>
+          <p class="form-note">Static preview form &mdash; wire this up to your form backend before going live.</p>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <p>&copy; {new Date().getFullYear()} HappyMonkey.AI</p>
+        <div class="footer-legal">
+          <span>Privacy Policy</span>
+          <span>Terms &amp; Conditions</span>
+          <span>Cookie Policy</span>
+          <a href="https://github.com/HappyMonkeyAI" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.querySelector('.contact-form')?.addEventListener('submit', (event) => event.preventDefault())
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+      if (!reducedMotion && canHover) {
+        const root = document.documentElement
+
+        // Titles: a single window-level pointer listener drives two CSS custom
+        // properties; every .tilt-title / section h2 reads them via calc(), so
+        // no per-element work happens on pointer move.
+        window.addEventListener('pointermove', (event) => {
+          const px = event.clientX / window.innerWidth
+          const py = event.clientY / window.innerHeight
+          root.style.setProperty('--tilt-x', ((0.5 - py) * 8).toFixed(2))
+          root.style.setProperty('--tilt-y', ((px - 0.5) * 12).toFixed(2))
+        })
+
+        // Info boxes: each card/tile tilts toward the cursor within its own
+        // bounds and shows a soft cursor-tracking glow.
+        document.querySelectorAll('.card, .tile').forEach((el) => {
+          el.addEventListener('pointermove', (event) => {
+            const bounds = el.getBoundingClientRect()
+            const px = (event.clientX - bounds.left) / bounds.width
+            const py = (event.clientY - bounds.top) / bounds.height
+            el.style.setProperty('--rx', ((0.5 - py) * 10).toFixed(2))
+            el.style.setProperty('--ry', ((px - 0.5) * 10).toFixed(2))
+            el.style.setProperty('--rz', '6')
+            el.style.setProperty('--glow', '1')
+            el.style.setProperty('--glow-x', `${(px * 100).toFixed(1)}%`)
+            el.style.setProperty('--glow-y', `${(py * 100).toFixed(1)}%`)
+          })
+          el.addEventListener('pointerleave', () => {
+            el.style.setProperty('--rx', '0')
+            el.style.setProperty('--ry', '0')
+            el.style.setProperty('--rz', '0')
+            el.style.setProperty('--glow', '0')
+          })
+        })
+      }
+    </script>
+  </body>
+</html>

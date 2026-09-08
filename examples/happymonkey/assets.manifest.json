@@ -1,0 +1,13 @@
+{
+  "schema": "astro-spatial/assets",
+  "version": 1,
+  "assets": [
+    {
+      "id": "hero-swarm",
+      "kind": "procedural",
+      "src": "swarm",
+      "provenance": "hand-authored, registered client-side as an agent-swarm procedural factory",
+      "triangleBudget": 50000
+    }
+  ]
+}
